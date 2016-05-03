@@ -18,7 +18,7 @@ class Brand(Page):
         self.in_menus = []
         if not self.parent:
             self.parent = Page.objects.get(title='MARQUES')
-        super(Marque, self).save(*args, **kwargs)
+        super(Brand, self).save(*args, **kwargs)
 
 class Topic(Page):
     def save(self, *args, **kwargs):
@@ -37,25 +37,34 @@ class Company(Page):
     country = models.CharField(max_length=255,null=False,blank=False)
     email = models.EmailField(null=False,blank=True)
     tel = models.CharField(max_length=20, null=False,blank=True)
+    fax = models.CharField(max_length=20, null=False,blank=True)
+    website = models.CharField(max_length=20, null=False,blank=True)
     highlight = models.BooleanField(default=False,null=False,blank=True)
 
     def save(self, *args, **kwargs):
         self.in_menus = []
+        if not self.parent:
+            self.parent = Page.objects.get(title='SOCIETES')
         # if not self.area:
             # if not self.country or self.country.lower() == "france":
                 # deduce area from zipCode[:2]
         super(Company, self).save(*args, **kwargs)
 
 class Person(Page):
+    firstName = models.CharField(max_length=255,null=False,blank=True)
     companies = models.ManyToManyField(Company,through='Job')
+    adress = models.CharField(max_length=255, null=False,blank=False)
+    zipCode = models.CharField(max_length=255, null=False,blank=False)
+    area = models.CharField(max_length=255, null=False,blank=True)
+    city = models.CharField(max_length=255, null=False,blank=False)
+    country = models.CharField(max_length=255,null=False,blank=False)
     email = models.EmailField(null=False,blank=True)
     tel = models.CharField(max_length=20, null=False,blank=True)
-    # adresse (full + département)
     highlight = models.BooleanField(default=False,null=False,blank=True)
 
     def save(self, *args, **kwargs):
         print('*********************************')
-        print(str(self.title) + ' is BEING SAVED')
+        # print(str(self.title) + ' is BEING SAVED')
         print('*********************************')
         self.in_menus = []
         self.parent = Page.objects.get(title='MEMBRES')

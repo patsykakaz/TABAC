@@ -27,8 +27,11 @@ company_fieldsets[0][1]["fields"].insert(-1, "zipCode")
 company_fieldsets[0][1]["fields"].insert(-1, "area")
 company_fieldsets[0][1]["fields"].insert(-1, "city")
 company_fieldsets[0][1]["fields"].insert(-1, "country")
-company_fieldsets[0][1]["fields"].insert(-1, "email")
 company_fieldsets[0][1]["fields"].insert(-1, "tel")
+company_fieldsets[0][1]["fields"].insert(-1, "fax")
+company_fieldsets[0][1]["fields"].insert(-1, "email")
+company_fieldsets[0][1]["fields"].insert(-1, "website")
+company_fieldsets[0][1]["fields"].insert(-1, "highlight")
 
 class CompanyAdmin(PageAdmin):
     inlines = (JobInline,)
@@ -36,6 +39,12 @@ class CompanyAdmin(PageAdmin):
 
 
 person_fieldsets = deepcopy(PageAdmin.fieldsets)
+person_fieldsets[0][1]["fields"].insert(-1, "firstName")
+person_fieldsets[0][1]["fields"].insert(-1, "adress")
+person_fieldsets[0][1]["fields"].insert(-1, "zipCode")
+person_fieldsets[0][1]["fields"].insert(-1, "area")
+person_fieldsets[0][1]["fields"].insert(-1, "city")
+person_fieldsets[0][1]["fields"].insert(-1, "country")
 person_fieldsets[0][1]["fields"].insert(-1, "email")
 person_fieldsets[0][1]["fields"].insert(-1, "tel")
 person_fieldsets[0][1]["fields"].insert(-1, "highlight")
