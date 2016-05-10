@@ -12,8 +12,32 @@ from mezzanine.core.models import RichText
 from mezzanine.core.fields import RichTextField, FileField
 from mezzanine.utils.models import upload_to
 
+# !! PRODUIT !!
+
+
+class Product(Page):
+    illustration = FileField(verbose_name=_("illustration"),
+        upload_to=upload_to("MAIN.Product.illustration", "product"),
+        format="Image", max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        if self.parent and self.parent.title != 'PRODUITS':
+            return '%s (%s)' % (self.title.upper(), self.parent.title)
+        else:
+            return '%s' % (self.title.upper())
+
+    def save(self, *args, **kwargs):
+        self.in_menus = []
+        if not self.parent:
+            self.parent = Page.objects.get(title='PRODUITS')
+        super(Product, self).save(*args, **kwargs)
 
 class Brand(Page):
+    products = models.ManyToManyField('Product',blank=True)
+    topics = models.ManyToManyField('Topic',blank=True)
+    illustration = FileField(verbose_name=_("illustration"),
+        upload_to=upload_to("MAIN.Brand.illustration", "brand"),
+        format="Image", max_length=255, null=True, blank=True)
     def save(self, *args, **kwargs):
         self.in_menus = []
         if not self.parent:
@@ -21,6 +45,15 @@ class Brand(Page):
         super(Brand, self).save(*args, **kwargs)
 
 class Topic(Page):
+    illustration = FileField(verbose_name=_("illustration"),
+        upload_to=upload_to("MAIN.Topic.illustration", "topic"),
+        format="Image", max_length=255, null=True, blank=True)
+    def __unicode__(self):
+        if self.parent and self.parent.title != 'RUBRIQUES':
+            return '%s (%s)' % (self.title.upper(), self.parent.title)
+        else:
+            return '%s' % (self.title.upper())
+
     def save(self, *args, **kwargs):
         self.in_menus = []
         if not self.parent:
@@ -28,18 +61,25 @@ class Topic(Page):
         super(Topic, self).save(*args, **kwargs)
 
 class Company(Page):
-    topic = models.ManyToManyField('Topic',blank=True)
+    subsidiaries = models.ManyToManyField('Company')
+    illustration = FileField(verbose_name=_("illustration"),
+        upload_to=upload_to("MAIN.Company.illustration", "company"),
+        format="Image", max_length=255, null=True, blank=True)
+    topics = models.ManyToManyField('Topic',blank=True)
     brands = models.ManyToManyField('Brand',blank=True)
-    adress = models.CharField(max_length=255, null=False,blank=False)
-    zipCode = models.CharField(max_length=255, null=False,blank=False)
+    adress = models.CharField(max_length=255, null=False,blank=True)
+    zipCode = models.CharField(max_length=255, null=False,blank=True)
     area = models.CharField(max_length=255, null=False,blank=True)
-    city = models.CharField(max_length=255, null=False,blank=False)
-    country = models.CharField(max_length=255,null=False,blank=False)
+    city = models.CharField(max_length=255, null=False,blank=True)
+    country = models.CharField(max_length=255,null=False,blank=True)
     email = models.EmailField(null=False,blank=True)
     tel = models.CharField(max_length=20, null=False,blank=True)
     fax = models.CharField(max_length=20, null=False,blank=True)
     website = models.CharField(max_length=20, null=False,blank=True)
     highlight = models.BooleanField(default=False,null=False,blank=True)
+
+    def __unicode__(self):
+        return '%s' % (self.title)
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -51,21 +91,24 @@ class Company(Page):
         super(Company, self).save(*args, **kwargs)
 
 class Person(Page):
+    illustration = FileField(verbose_name=_("illustration"),
+        upload_to=upload_to("MAIN.Person.illustration", "person"),
+        format="Image", max_length=255, null=True, blank=True)
     firstName = models.CharField(max_length=255,null=False,blank=True)
     companies = models.ManyToManyField(Company,through='Job')
-    adress = models.CharField(max_length=255, null=False,blank=False)
-    zipCode = models.CharField(max_length=255, null=False,blank=False)
+    adress = models.CharField(max_length=255, null=False,blank=True)
+    zipCode = models.CharField(max_length=255, null=False,blank=True)
     area = models.CharField(max_length=255, null=False,blank=True)
-    city = models.CharField(max_length=255, null=False,blank=False)
-    country = models.CharField(max_length=255,null=False,blank=False)
+    city = models.CharField(max_length=255, null=False,blank=True)
+    country = models.CharField(max_length=255,null=False,blank=True)
     email = models.EmailField(null=False,blank=True)
     tel = models.CharField(max_length=20, null=False,blank=True)
     highlight = models.BooleanField(default=False,null=False,blank=True)
 
+    def __unicode__(self):
+        return '%s %s' % (self.title.upper(), self.firstName.lower())
+
     def save(self, *args, **kwargs):
-        print('*********************************')
-        # print(str(self.title) + ' is BEING SAVED')
-        print('*********************************')
         self.in_menus = []
         self.parent = Page.objects.get(title='MEMBRES')
         super(Person, self).save(*args,**kwargs)

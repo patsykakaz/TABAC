@@ -120,11 +120,9 @@ def importXML(request,start,end):
             except:
                 topic = Topic(title=subRubrique)
                 if rubrique:
-                    print "fetch parent"
                     try:
                         parent = Topic.objects.get(title=rubrique)
                         topic.parent = parent
-                        print 'parent = %s' % parent
                     except:
                         pass
                 topic.save()
@@ -132,7 +130,6 @@ def importXML(request,start,end):
         if person1:
             try: 
                 person = Person.objects.get(title=person1)
-                print person
             except:
                 person = Person(title=person1)
                 if person2:

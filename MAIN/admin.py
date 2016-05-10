@@ -8,9 +8,20 @@ from .models import *
 from mezzanine.blog.admin import BlogPostAdmin
 from mezzanine.blog.models import BlogPost
 
+# !! PRODUIT !!
 
-class BrandAdmin(PageAdmin):
+
+class ProductAdmin(PageAdmin):
     fieldsets = deepcopy(PageAdmin.fieldsets)
+
+
+brand_fieldsets = deepcopy(PageAdmin.fieldsets)
+brand_fieldsets[0][1]["fields"].insert(-1, "products")
+brand_fieldsets[0][1]["fields"].insert(-1, "topics")
+brand_fieldsets[0][1]["fields"].insert(-1, "illustration")
+class BrandAdmin(PageAdmin):
+    # add lien rubrique
+    fieldsets = brand_fieldsets
 
 class TopicAdmin(PageAdmin):
     fieldsets = deepcopy(PageAdmin.fieldsets)
@@ -20,8 +31,10 @@ class JobInline(admin.TabularInline):
     extra = 1
 
 company_fieldsets = deepcopy(PageAdmin.fieldsets)
+company_fieldsets[0][1]["fields"].insert(-1, "subsidiaries")
 company_fieldsets[0][1]["fields"].insert(-1, "brands")
-company_fieldsets[0][1]["fields"].insert(-1, "topic")
+company_fieldsets[0][1]["fields"].insert(-1, "topics")
+company_fieldsets[0][1]["fields"].insert(-1, "illustration")
 company_fieldsets[0][1]["fields"].insert(-1, "adress")
 company_fieldsets[0][1]["fields"].insert(-1, "zipCode")
 company_fieldsets[0][1]["fields"].insert(-1, "area")
@@ -40,6 +53,7 @@ class CompanyAdmin(PageAdmin):
 
 person_fieldsets = deepcopy(PageAdmin.fieldsets)
 person_fieldsets[0][1]["fields"].insert(-1, "firstName")
+person_fieldsets[0][1]["fields"].insert(-1, "illustration")
 person_fieldsets[0][1]["fields"].insert(-1, "adress")
 person_fieldsets[0][1]["fields"].insert(-1, "zipCode")
 person_fieldsets[0][1]["fields"].insert(-1, "area")
@@ -52,6 +66,7 @@ class PersonAdmin(PageAdmin):
     inlines = (JobInline,)
     fieldsets = person_fieldsets
 
+admin.site.register(Product, ProductAdmin)
 admin.site.register(Brand, BrandAdmin)
 admin.site.register(Topic, TopicAdmin)
 admin.site.register(Person, PersonAdmin)
