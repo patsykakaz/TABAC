@@ -26,6 +26,9 @@ class Product(Page):
         else:
             return '%s' % (self.title.upper())
 
+    class Meta:
+        verbose_name='PRODUIT'
+
     def save(self, *args, **kwargs):
         self.in_menus = []
         if not self.parent:
@@ -38,6 +41,10 @@ class Brand(Page):
     illustration = FileField(verbose_name=_("illustration"),
         upload_to=upload_to("MAIN.Brand.illustration", "brand"),
         format="Image", max_length=255, null=True, blank=True)
+
+    class Meta:
+        verbose_name='MARQUE'
+
     def save(self, *args, **kwargs):
         self.in_menus = []
         if not self.parent:
@@ -48,11 +55,15 @@ class Topic(Page):
     illustration = FileField(verbose_name=_("illustration"),
         upload_to=upload_to("MAIN.Topic.illustration", "topic"),
         format="Image", max_length=255, null=True, blank=True)
+
     def __unicode__(self):
         if self.parent and self.parent.title != 'RUBRIQUES':
             return '%s (%s)' % (self.title.upper(), self.parent.title)
         else:
             return '%s' % (self.title.upper())
+
+    class Meta:
+        verbose_name='RUBRIQUE'
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -61,7 +72,7 @@ class Topic(Page):
         super(Topic, self).save(*args, **kwargs)
 
 class Company(Page):
-    subsidiaries = models.ManyToManyField('Company')
+    subsidiaries = models.ManyToManyField("self",through='Subsidiary',symmetrical=False)
     illustration = FileField(verbose_name=_("illustration"),
         upload_to=upload_to("MAIN.Company.illustration", "company"),
         format="Image", max_length=255, null=True, blank=True)
@@ -81,6 +92,9 @@ class Company(Page):
     def __unicode__(self):
         return '%s' % (self.title)
 
+    class Meta:
+        verbose_name='SOCIETE'
+
     def save(self, *args, **kwargs):
         self.in_menus = []
         if not self.parent:
@@ -89,6 +103,21 @@ class Company(Page):
             # if not self.country or self.country.lower() == "france":
                 # deduce area from zipCode[:2]
         super(Company, self).save(*args, **kwargs)
+
+class Subsidiary(models.Model):
+    top_company = models.ForeignKey(Company,related_name='top_companies')
+    sub_company = models.ForeignKey(Company,related_name='sub_companies',verbose_name='Société affiliée')
+    relation_choices = (
+        ('','---'),
+        ('Adhérent', 'Adhérent'),
+        ('Membre', 'Membre'),
+        ('Filliale', 'Filliale'),
+    )
+    relation = models.CharField(max_length=255,choices=relation_choices,null=False,blank=True,verbose_name='nature de l\'affiliation')
+    relation_alt = models.CharField(max_length=255,null=False,blank=True,verbose_name='alternative nature affiliation')
+
+    class Meta:
+        verbose_name='Société affiliée'
 
 class Person(Page):
     illustration = FileField(verbose_name=_("illustration"),
@@ -113,9 +142,15 @@ class Person(Page):
         self.parent = Page.objects.get(title='MEMBRES')
         super(Person, self).save(*args,**kwargs)
 
+    class Meta:
+        verbose_name='INDIVIDU'
+
 class Job(models.Model):
-    person = models.ForeignKey(Person)
+    person = models.ForeignKey(Person,verbose_name='Employé')
     company = models.ForeignKey(Company)
-    title = models.CharField(max_length=255,null=False,blank=True)
-    since = models.DateField(auto_now=False,auto_now_add=False,null=True,blank=True)
-    until = models.DateField(auto_now=False,auto_now_add=False,null=True,blank=True)
+    title = models.CharField(max_length=255,null=False,blank=True,verbose_name='intitulé du poste')
+    since = models.DateField(auto_now=False,auto_now_add=False,null=True,blank=True,verbose_name='date d\'entrée en fonction')
+    until = models.DateField(auto_now=False,auto_now_add=False,null=True,blank=True,verbose_name='date de fin de la fonction')
+
+    class Meta:
+        verbose_name='Employé'

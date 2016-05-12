@@ -26,12 +26,16 @@ class BrandAdmin(PageAdmin):
 class TopicAdmin(PageAdmin):
     fieldsets = deepcopy(PageAdmin.fieldsets)
 
+class SubsidiaryInline(admin.TabularInline):
+    model = Subsidiary
+    fk_name = 'top_company'
+    extra = 5
+
 class JobInline(admin.TabularInline):
     model = Job
-    extra = 1
+    extra = 5
 
 company_fieldsets = deepcopy(PageAdmin.fieldsets)
-company_fieldsets[0][1]["fields"].insert(-1, "subsidiaries")
 company_fieldsets[0][1]["fields"].insert(-1, "brands")
 company_fieldsets[0][1]["fields"].insert(-1, "topics")
 company_fieldsets[0][1]["fields"].insert(-1, "illustration")
@@ -47,7 +51,7 @@ company_fieldsets[0][1]["fields"].insert(-1, "website")
 company_fieldsets[0][1]["fields"].insert(-1, "highlight")
 
 class CompanyAdmin(PageAdmin):
-    inlines = (JobInline,)
+    inlines = (JobInline,SubsidiaryInline)
     fieldsets = company_fieldsets
 
 
