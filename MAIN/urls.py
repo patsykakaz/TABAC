@@ -39,6 +39,7 @@ urlpatterns += [
 
     url("^$", direct_to_template, {"template": "index.html"}, name="home"),
     url(r'^import/(?P<start>.+)/(?P<end>.+)/$', 'MAIN.views.importXML', name='import'),
+    url(r'^cat/(?P<cat>.+)/$', 'MAIN.views.displayCompanies', name='cat'),
 
     # HOMEPAGE AS AN EDITABLE PAGE IN THE PAGE TREE
     # ---------------------------------------------

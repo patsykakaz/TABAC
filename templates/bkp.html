@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load pages_tags mezzanine_tags i18n staticfiles %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "css/temp.css" %}">
+{% endblock %}
+
+{% block meta_title %}DisplayCompanies{% endblock %}
+{% block title %}Display/Print{% endblock %}
+
+
+{% block main %}
+
+    {% if not allCompanies %}
+        XXXXX
+    {% else %}
+        {% for societe in allCompanies %}
+            <div class='societe'>
+                <h1>{{ societe.title }}</h1>
+                <div class='row'>
+                    <div class='info col-md-6'>Adresse: {{ societe.adress }}</div>
+                    <div class='info col-md-6'> Code Postal: {{ societe.zipCode }}</div>
+                    <div class='info col-md-6'>ville: {{ societe.city }}</div>
+                    <div class='info col-md-6'>Région: {{ societe.area }}</div>
+                    <div class='info col-md-6'>Pays: {{ societe.country }}</div>
+                    <div class='info col-md-6'>EMail: {{societe.email}}</div>
+                    <div class='info col-md-6'>Telephone: {{societe.phone}}</div><div class='info col-md-6'>web: {{societe.website}}</div>
+                </div>
+                <div class='marques'><b>MARQUES </b>
+                    {% for marque in societe.brands.all %}
+                        <div class='marque'>{{ marque.title }}</div>
+                    {% endfor %}
+                </div>
+                <div class='membres row'>
+                    <div class='col-md-12 text-left' style='margin-bottom: 5px;'><b>EMPLOYES </b></div>
+                    {% for membre in societe.employees %}
+                        <div class='col-md-3 col-sm-4 col-xs-6'>
+                            <div class='membre'>
+                                <h4>{{ membre.title }} {{ membre.firstName }}</h4>
+                                {% if membre.illustration %}
+                                    <img src='{{ MEDIA_URL }}{% thumbnail membre.illustration 0 80 %}' />
+                                {% endif %}
+                                <div class='info'> Poste:<b> {{ membre.job.title }} </b></div>
+                                <div class='info'>Adresse:<b> {{  membre.adress }} </b></div>
+                                <div class='info'> Code Postal:<b> {{  membre.zipCode }} </b></div>
+                                <div class='info'>ville:<b> {{  membre.city }} </b></div>
+                                <div class='info'>Région:<b> {{  membre.area }} </b></div>
+                                <div class='info'>Pays:<b> {{  membre.country }} </b></div>
+                                <div class='info'>EMail:<b> {{ membre.email}} </b></div>
+                                <div class='info'>Telephone:<b> {{ membre.phone}}</b></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style='margin-top:15px;'><b>FILLIALES</b></div>
+                <div class='allFilliales'>
+                {% for subsociete in societe.filliales %}
+                    <div class='filliale'>
+                        <h2>{{ subsociete.sub_company.title }}</h2>
+                        <div class='membres'>
+                        {% for membre in subsociete.employees.all %}
+                            <h5>{{ membre.title }}</h5>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}

@@ -22,12 +22,13 @@ class Product(Page):
 
     def __unicode__(self):
         if self.parent and self.parent.title != 'PRODUITS':
-            return '%s (%s)' % (self.title.upper(), self.parent.title)
+            return '%s [sous-catégorie de produit de: %s]' % (self.title.upper(), self.parent.title)
         else:
             return '%s' % (self.title.upper())
 
     class Meta:
         verbose_name='PRODUIT'
+        ordering = ['title']
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -42,8 +43,12 @@ class Brand(Page):
         upload_to=upload_to("MAIN.Brand.illustration", "brand"),
         format="Image", max_length=255, null=True, blank=True)
 
+    def __unicode__(self):
+        return '%s' % (self.title)
+
     class Meta:
         verbose_name='MARQUE'
+        ordering = ['title']
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -58,12 +63,13 @@ class Topic(Page):
 
     def __unicode__(self):
         if self.parent and self.parent.title != 'RUBRIQUES':
-            return '%s (%s)' % (self.title.upper(), self.parent.title)
+            return '%s [sous-rubrique de: %s]' % (self.title.upper(), self.parent.title)
         else:
             return '%s' % (self.title.upper())
 
     class Meta:
         verbose_name='RUBRIQUE'
+        ordering = ['title']
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -75,7 +81,7 @@ class Company(Page):
     subsidiaries = models.ManyToManyField("self",through='Subsidiary',symmetrical=False)
     illustration = FileField(verbose_name=_("illustration"),
         upload_to=upload_to("MAIN.Company.illustration", "company"),
-        format="Image", max_length=255, null=True, blank=True)
+        format="Image", max_length=255, null=False, blank=True)
     topics = models.ManyToManyField('Topic',blank=True)
     brands = models.ManyToManyField('Brand',blank=True)
     adress = models.CharField(max_length=255, null=False,blank=True)
@@ -84,9 +90,9 @@ class Company(Page):
     city = models.CharField(max_length=255, null=False,blank=True)
     country = models.CharField(max_length=255,null=False,blank=True)
     email = models.EmailField(null=False,blank=True)
-    tel = models.CharField(max_length=20, null=False,blank=True)
-    fax = models.CharField(max_length=20, null=False,blank=True)
-    website = models.CharField(max_length=20, null=False,blank=True)
+    tel = models.CharField(max_length=255, null=False,blank=True)
+    fax = models.CharField(max_length=255, null=False,blank=True)
+    website = models.CharField(max_length=255, null=False,blank=True)
     highlight = models.BooleanField(default=False,null=False,blank=True)
 
     def __unicode__(self):
@@ -94,6 +100,7 @@ class Company(Page):
 
     class Meta:
         verbose_name='SOCIETE'
+        ordering = ['title']
 
     def save(self, *args, **kwargs):
         self.in_menus = []
@@ -111,10 +118,16 @@ class Subsidiary(models.Model):
         ('','---'),
         ('Adhérent', 'Adhérent'),
         ('Membre', 'Membre'),
+        ('Antenne', 'Antenne'),
+        ('Antenne internationale', 'Antenne internationale'),
         ('Filliale', 'Filliale'),
+        ('Agence', 'Agence'),
+        ('Fédération régionale', 'Fédération régionale'),
+        ('Chambre syndicale', 'Chambre syndicale'),
+        ('Délégation', 'Délégation'),
     )
     relation = models.CharField(max_length=255,choices=relation_choices,null=False,blank=True,verbose_name='nature de l\'affiliation')
-    relation_alt = models.CharField(max_length=255,null=False,blank=True,verbose_name='alternative nature affiliation')
+    relation_alt = models.CharField(max_length=255,null=False,blank=True,verbose_name='nature affiliation alternative')
 
     class Meta:
         verbose_name='Société affiliée'
@@ -131,7 +144,7 @@ class Person(Page):
     city = models.CharField(max_length=255, null=False,blank=True)
     country = models.CharField(max_length=255,null=False,blank=True)
     email = models.EmailField(null=False,blank=True)
-    tel = models.CharField(max_length=20, null=False,blank=True)
+    tel = models.CharField(max_length=255, null=False,blank=True)
     highlight = models.BooleanField(default=False,null=False,blank=True)
 
     def __unicode__(self):

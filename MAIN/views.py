@@ -2,8 +2,11 @@
 
 from __future__ import unicode_literals
 
+import os
+from PIL import Image
+
 from django.http import HttpResponse, HttpResponseRedirect
-# from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect
 # from django.contrib.auth import logout, login, authenticate, get_backends
 # from django.contrib.auth.forms import UserCreationForm
 # from django.contrib.auth.models import User
@@ -15,11 +18,79 @@ from .models import *
 
 import xml.etree.ElementTree as ET
 
+def displayCompanies(request,cat):
+    try:
+        topic = Topic.objects.get(title=cat)
+    except:
+        return HttpResponse('Aucune catégorie correspondant à l\'entrée')
+    allCompanies = Company.objects.filter(topics=topic)
+    for company in allCompanies:
+        company.employees = Person.objects.filter(companies=company)
+        for person in company.employees:
+            person.job = Job.objects.get(company=company,person=person)
+            print person.job.title
+        company.filliales = Subsidiary.objects.filter(top_company=company)
+        for filliale in company.filliales.all():
+            filliale.employees = Person.objects.filter(companies=filliale.sub_company)
+            print "XXXX %s " % filliale.employees
+    return render(request,'displaycompanies.html',locals())
 
-tree = ET.parse('liste.xml')
-root = tree.getroot()
+
+def importPhoto(request):
+    # import unicodedata
+
+    yourpath = os.getcwd()
+    for root, dirs, files in os.walk('/home/patsykakaz/TABAC/MAIN/receptacle', topdown=False):
+        count8 = 0
+        countX = 0
+        countZ = 0
+        for name in files:
+            target = os.path.splitext(os.path.join(root, name))[0]
+            # target = unicodedata.normalize('NFKD', target).encode('ASCII', 'ignore')
+            target = target.split('/')[-1]
+            if len(target) == 8:
+                count8 += 1
+                # print "%s (%s // %s)" % (target,target[:3],target[:-3])
+                p1 = Person.objects.filter(firstName__istartswith=target[:3])
+                p2 = p1.filter(title__istartswith=target[4:])
+                if len(p2) == 1:
+                    countZ +=1
+                    print p2
+                else:
+                    print target
+                # print "p1Length = %s, p2Length = %s  \n person = %s" % (len(p1),len(p2),p2)
+                # print len(p2)
+            else:
+                countX += 1
+        print "count8 = %s \n countX = %s \n countZ = %s" % (count8,countX,countZ)
+    return HttpResponse('check console')
+
+
+def importPhoto(request):
+    import unicodedata
+
+    allPersons = Person.objects.filter(illustration__isnull=True)
+    i1 = 0
+    for element in allPersons:
+        composition = ""
+        composition += unicodedata.normalize('NFKD', element.firstName).encode('ASCII', 'ignore')[:4]
+        composition += unicodedata.normalize('NFKD', element.title).encode('ASCII', 'ignore')[:4]
+        # composition = Person.firstName[:3] + Person.title[:3]
+        composition = composition.lower()
+        if os.path.isfile('/home/patsykakaz/TABAC/MAIN/static/media/uploads/person/import/'+composition+'.jpg'):
+            print "FILE IS OK !!!!!!!!!!!!"
+            element.illustration = '/static/media/uploads/person/import/'+composition+'.jpg'
+            element.save()
+            i1 +=1
+        else:
+            print '%s FILE DOES NOT EXIST' % (composition+'.jpg')
+    print len(allPersons)
+    print "i1 -> %s" % i1
+    return HttpResponse('Check CONSOLE')
 
 def importXML(request,start,end):
+    tree = ET.parse('liste.xml')
+    root = tree.getroot()
     i1 = int(start)
     while i1 < int(end):
         row = root[0][0][i1]
@@ -113,7 +184,7 @@ def importXML(request,start,end):
             except:
                 topic = Topic(title=rubrique)
                 topic.save()
-            company.topic.add(topic)
+            company.topics.add(topic)
         if subRubrique:
             try:
                 topic = Topic.objects.get(title=subRubrique)
@@ -126,7 +197,7 @@ def importXML(request,start,end):
                     except:
                         pass
                 topic.save()
-            company.topic.add(topic)
+            company.topics.add(topic)
         if person1:
             try: 
                 person = Person.objects.get(title=person1)
